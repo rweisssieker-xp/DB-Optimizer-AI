@@ -17,6 +17,7 @@ public interface IHistoricalDataService
     Task<List<QueryPerformanceHistory>> GetQueryPerformanceHistoryAsync(string queryHash, DateTime from, DateTime to);
     Task<List<BatchJobHistory>> GetBatchJobHistoryAsync(DateTime from, DateTime to);
     Task<List<DatabaseSizeHistory>> GetDatabaseSizeHistoryAsync(DateTime from, DateTime to);
+    Task<List<PerformanceSnapshot>> GetPerformanceSnapshotsAsync(DateTime from, DateTime to);
 
     // Trend analysis
     Task<TrendAnalysis> AnalyzeTrendAsync(string metricType, DateTime from, DateTime to);

@@ -93,6 +93,12 @@ public class SystemHealthScoreService : ISystemHealthScoreService
         }
     }
 
+    public Task<SystemHealthScore> GetSystemHealthScoreAsync()
+    {
+        // Alias for CalculateHealthScoreAsync
+        return CalculateHealthScoreAsync();
+    }
+
     public async Task<HealthCategory> CalculateSqlPerformanceScoreAsync()
     {
         var category = new HealthCategory

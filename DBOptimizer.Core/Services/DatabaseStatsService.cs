@@ -54,6 +54,12 @@ public class DatabaseStatsService : IDatabaseStatsService
         return metric;
     }
 
+    public Task<DatabaseMetric> GetPerformanceStatsAsync()
+    {
+        // Alias for GetDatabaseMetricsAsync
+        return GetDatabaseMetricsAsync();
+    }
+
     public async Task<List<TableMetric>> GetTopTablesBySize(int topCount = 20)
     {
         var tables = new List<TableMetric>();

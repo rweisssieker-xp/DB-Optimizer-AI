@@ -125,14 +125,11 @@ public partial class App : Application
                 });
 
                 // NEW: Query Performance Forecasting
-                // TEMPORARILY DISABLED
-                /*
                 services.AddSingleton<IQueryPerformanceForecastingService>(sp =>
                 {
                     var logger = sp.GetRequiredService<ILogger<QueryPerformanceForecastingService>>();
                     return new QueryPerformanceForecastingService(logger);
                 });
-                */
 
                 // NEW: Self-Healing Queries
                 services.AddSingleton<ISelfHealingQueryService>(sp =>
@@ -196,8 +193,6 @@ public partial class App : Application
                 });
 
                 // NEW: AI Health Dashboard - System Health Score Service
-                // TEMPORARILY DISABLED
-                /*
                 services.AddSingleton<ISystemHealthScoreService>(sp =>
                 {
                     var logger = sp.GetRequiredService<ILogger<SystemHealthScoreService>>();
@@ -206,11 +201,8 @@ public partial class App : Application
                     var batchJobMonitor = sp.GetRequiredService<IBatchJobMonitorService>();
                     return new SystemHealthScoreService(logger, queryMonitor, databaseStats, batchJobMonitor);
                 });
-                */
 
                 // 🆕 Q4 2025 ENTERPRISE FEATURES: Performance Health Score Service
-                // TEMPORARILY DISABLED - Requires additional interface methods
-                /*
                 services.AddSingleton<IPerformanceHealthScoreService>(sp =>
                 {
                     var logger = sp.GetRequiredService<ILogger<PerformanceHealthScoreService>>();
@@ -239,7 +231,6 @@ public partial class App : Application
                     var historicalData = sp.GetRequiredService<IHistoricalDataService>();
                     return new ComplianceAuditService(logger, historicalData);
                 });
-                */
 
                 // NEW: Dialog Service for modern popups
                 services.AddSingleton<Services.IDialogService, Services.DialogService>();
@@ -257,7 +248,7 @@ public partial class App : Application
                 // PHASE 1 AI FEATURES: ViewModels
                 services.AddTransient<NaturalLanguageAssistantViewModel>();
                 services.AddTransient<AiInsightsDashboardViewModel>();
-                // services.AddTransient<AiHealthDashboardViewModel>(); // TEMPORARILY DISABLED
+                services.AddTransient<AiHealthDashboardViewModel>();
 
                 // 🚀 INNOVATIVE USP FEATURES: ViewModels
                 services.AddTransient<PerformanceDnaViewModel>();
@@ -267,9 +258,8 @@ public partial class App : Application
                 services.AddTransient<PerformanceCommunityViewModel>();
 
                 // 🆕 Q4 2025 ENTERPRISE FEATURES: ViewModels
-                // TEMPORARILY DISABLED
-                // services.AddTransient<ExecutiveDashboardViewModel>();
-                // services.AddTransient<ComplianceAuditViewModel>();
+                services.AddTransient<ExecutiveDashboardViewModel>();
+                services.AddTransient<ComplianceAuditViewModel>();
 
                 // Server Settings ViewModel
                 services.AddTransient<ServerSettingsViewModel>();

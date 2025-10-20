@@ -350,6 +350,14 @@ public class HistoricalDataService : IHistoricalDataService
         return baseline;
     }
 
+    public async Task<List<PerformanceSnapshot>> GetPerformanceSnapshotsAsync(DateTime from, DateTime to)
+    {
+        // Simple stub implementation - returns empty list
+        // In a real implementation, this would query the database for performance snapshots
+        await Task.CompletedTask;
+        return new List<PerformanceSnapshot>();
+    }
+
     public async Task CleanupOldDataAsync(int daysToKeep)
     {
         using var connection = new SqliteConnection(_connectionString);

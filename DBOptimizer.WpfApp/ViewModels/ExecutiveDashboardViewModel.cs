@@ -86,7 +86,7 @@ public partial class ExecutiveDashboardViewModel : ObservableObject
 
     // Historical Trend
     [ObservableProperty]
-    private ObservableCollection<HealthScoreTrendItem> _healthScoreTrend;
+    private ObservableCollection<HealthScoreTrendItem> _healthScoreTrendItems;
 
     // Quick Stats
     [ObservableProperty]
@@ -111,7 +111,7 @@ public partial class ExecutiveDashboardViewModel : ObservableObject
         _healthScoreService = healthScoreService;
 
         Achievements = new ObservableCollection<AchievementItem>();
-        HealthScoreTrend = new ObservableCollection<HealthScoreTrendItem>();
+        HealthScoreTrendItems = new ObservableCollection<HealthScoreTrendItem>();
     }
 
     [RelayCommand]
@@ -168,12 +168,12 @@ public partial class ExecutiveDashboardViewModel : ObservableObject
             BoardReadySummary = report.BoardReadySummary;
 
             // Update Historical Trend
-            HealthScoreTrend.Clear();
+            HealthScoreTrendItems.Clear();
             foreach (var trend in report.HistoricalTrend)
             {
-                HealthScoreTrend.Add(new HealthScoreTrendItem
+                HealthScoreTrendItems.Add(new HealthScoreTrendItem
                 {
-                    Period = trend.Period,
+                    Period = trend.Month.ToString("MMM yyyy"),
                     Score = trend.Score,
                     Grade = trend.Grade,
                     VisualBar = GenerateVisualBar(trend.Score)
@@ -249,7 +249,7 @@ public partial class ExecutiveDashboardViewModel : ObservableObject
     {
         try
         {
-            var healthReport = await _healthScoreService.GetHealthScoreReportAsync();
+            var healthReport = await _executiveDashboardService.GetHealthScoreReportAsync();
 
             // TODO: Navigate to health score detail view or show dialog
             _logger.LogInformation("Health score details requested");

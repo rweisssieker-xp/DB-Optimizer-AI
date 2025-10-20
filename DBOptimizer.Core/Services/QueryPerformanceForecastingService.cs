@@ -81,8 +81,8 @@ public class QueryPerformanceForecastingService : IQueryPerformanceForecastingSe
             {
                 Date = lastTimestamp.AddDays(day),
                 PredictedValue = Math.Max(0, predictedValue),
-                LowerBound = Math.Max(0, predictedValue - (2 * stdDev)),
-                UpperBound = predictedValue + (2 * stdDev),
+                LowerBound = (int)Math.Max(0, predictedValue - (2 * stdDev)),
+                UpperBound = (int)(predictedValue + (2 * stdDev)),
                 IsAnomaly = false
             };
 

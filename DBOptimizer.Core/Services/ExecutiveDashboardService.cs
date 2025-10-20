@@ -80,7 +80,12 @@ public class ExecutiveDashboardService : IExecutiveDashboardService
                 NetRoi = costMetrics.MonthlySavings - 499m,
                 RoiPercentage = roi.RoiPercentage,
                 BoardReadySummary = boardSummary,
-                HistoricalTrend = healthHistory.TakeLast(6).ToList()
+                HistoricalTrend = healthHistory.TakeLast(6).Select(h => new MonthlyHealthScore
+                {
+                    Month = h.Date,
+                    Score = h.Score,
+                    Grade = h.Grade
+                }).ToList()
             };
 
             _logger.LogInformation($"Executive report generated successfully. Health Score: {healthScore.Score}, ROI: {roi.RoiPercentage:F0}%");
@@ -116,7 +121,12 @@ public class ExecutiveDashboardService : IExecutiveDashboardService
                 CostEfficiency = breakdown.CostEfficiency,
                 Strengths = healthScore.TopStrengths.Select(s => new HealthFactor { Name = s, Description = $"Performing well in {s}", Impact = 1, Icon = "✅" }).ToList(),
                 AreasForImprovement = healthScore.TopWeaknesses.Select(w => new HealthFactor { Name = w, Description = $"Needs attention in {w}", Impact = 2, Icon = "⚠️" }).ToList(),
-                HistoricalTrend = history,
+                HistoricalTrend = history.Select(h => new MonthlyHealthScore
+                {
+                    Month = h.Date,
+                    Score = h.Score,
+                    Grade = h.Grade
+                }).ToList(),
                 TargetScore = 90,
                 GapToTarget = 90 - healthScore.Score,
                 EstimatedMonthsToTarget = Math.Max(1, (90 - healthScore.Score) / Math.Max(1, healthScore.Trend.ChangeFromLastMonth))

@@ -18,14 +18,6 @@
     <ProjectReference Include="..\DBOptimizer.Data\DBOptimizer.Data.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Temporarily exclude new enterprise services until interface methods are added -->
-    <Compile Remove="Services\PerformanceHealthScoreService.cs" />
-    <Compile Remove="Services\ExecutiveDashboardService.cs" />
-    <Compile Remove="Services\ComplianceAuditService.cs" />
-    <Compile Remove="Services\SystemHealthScoreService.cs" />
-    <Compile Remove="Services\QueryPerformanceForecastingService.cs" />
-  </ItemGroup>
 
 </Project>
 

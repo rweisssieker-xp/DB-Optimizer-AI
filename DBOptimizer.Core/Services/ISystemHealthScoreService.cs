@@ -13,6 +13,11 @@ public interface ISystemHealthScoreService
     Task<SystemHealthScore> CalculateHealthScoreAsync();
 
     /// <summary>
+    /// Get the current system health score (alias for CalculateHealthScoreAsync)
+    /// </summary>
+    Task<SystemHealthScore> GetSystemHealthScoreAsync();
+
+    /// <summary>
     /// Get health score history for trending
     /// </summary>
     Task<List<HealthScoreHistory>> GetHealthScoreHistoryAsync(int days = 30);

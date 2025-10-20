@@ -9,6 +9,11 @@ public class PerformanceSnapshot
     public List<string> ActiveSessions { get; set; } = new();
     public Dictionary<string, double> SystemCounters { get; set; } = new();
     public string Description { get; set; } = string.Empty;
+    
+    // Additional performance metrics
+    public int? QueryPerformanceMetric { get; set; }
+    public double? UptimePercentage { get; set; }
+    public double? CpuUtilization { get; set; }
 }
 
 public class QuerySnapshot

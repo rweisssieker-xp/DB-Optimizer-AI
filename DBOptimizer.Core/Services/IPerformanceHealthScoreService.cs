@@ -21,9 +21,9 @@ public interface IPerformanceHealthScoreService
     Task<HealthScoreBreakdown> GetHealthScoreBreakdownAsync();
     
     /// <summary>
-    /// Gets historical health score trend
+    /// Get historical health score trends
     /// </summary>
-    Task<List<HealthScoreHistory>> GetHealthScoreHistoryAsync(int months = 6);
+    Task<List<PerformanceHealthScoreHistory>> GetHealthScoreHistoryAsync(int days = 30);
     
     /// <summary>
     /// Gets health score compared to industry benchmarks
@@ -133,12 +133,12 @@ public class HealthRecommendation
 /// <summary>
 /// Historical health score data point
 /// </summary>
-public class HealthScoreHistory
+public class PerformanceHealthScoreHistory
 {
     public DateTime Date { get; set; }
     public int Score { get; set; }
-    public string Grade { get; set; }
-    public string Period { get; set; } // "Jan 2025", "Week 42", etc.
+    public string Grade { get; set; } = string.Empty;
+    public string Period { get; set; } = string.Empty; // "Jan 2025", "Week 42", etc.
     
     // Component scores at that time
     public int QueryPerformanceScore { get; set; }
@@ -190,16 +190,16 @@ public class HealthScoreForecast
     public double ConfidenceLevel { get; set; } // 0-100%
     
     public string Trajectory { get; set; } // "Improving", "Stable", "Declining"
-    public List<ForecastDataPoint> ForecastCurve { get; set; }
+    public List<HealthScoreForecastDataPoint> ForecastCurve { get; set; } = new();
     
     // Risk factors
-    public List<RiskFactor> RiskFactors { get; set; }
+    public List<RiskFactor> RiskFactors { get; set; } = new();
     
     // Recommendations to improve trajectory
-    public List<string> ProactiveActions { get; set; }
+    public List<string> ProactiveActions { get; set; } = new();
 }
 
-public class ForecastDataPoint
+public class HealthScoreForecastDataPoint
 {
     public DateTime Date { get; set; }
     public int PredictedScore { get; set; }

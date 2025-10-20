@@ -8,6 +8,12 @@ public class DatabaseMetric
     public long LogSizeMB { get; set; }
     public long UnallocatedSpaceMB { get; set; }
     public DateTime CollectedAt { get; set; } = DateTime.UtcNow;
+    
+    // Performance metrics
+    public double? AverageQueryDuration { get; set; } // ms
+    public double? CpuUsagePercent { get; set; }
+    public double? MemoryUsagePercent { get; set; }
+    public int? SlowQueryCount { get; set; }
 }
 
 public class TableMetric

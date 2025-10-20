@@ -46,6 +46,13 @@ public class SystemHealthScore
     public HealthCategory DatabaseSize { get; set; } = new();
 
     /// <summary>
+    /// Additional metrics
+    /// </summary>
+    public double? UptimePercentage { get; set; }
+    public double? ErrorRate { get; set; }
+    public int? FailedBatchJobs { get; set; }
+
+    /// <summary>
     /// Overall health status
     /// </summary>
     public HealthStatus Status => OverallScore switch

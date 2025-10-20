@@ -34,21 +34,6 @@
                 <views:DashboardView/>
             </TabItem>
             
-            <!-- 🆕 Q4 2025 ENTERPRISE FEATURES - TEMPORARILY DISABLED -->
-            <!--
-            <TabItem Header="📊 Executive Dashboard">
-                <views:ExecutiveDashboardView/>
-            </TabItem>
-            
-            <TabItem Header="📝 Compliance & Audit">
-                <views:ComplianceAuditView/>
-            </TabItem>
-            -->
-            
-            <TabItem Header="⚙️ Settings">
-                <views:SettingsView/>
-            </TabItem>
-            
             <TabItem Header="📈 SQL Performance">
                 <views:SqlPerformanceView/>
             </TabItem>
@@ -81,11 +66,9 @@
                 <views:AiInsightsDashboardView/>
             </TabItem>
 
-            <!-- TEMPORARILY DISABLED
             <TabItem Header="🏥 AI Health Dashboard">
                 <views:AiHealthDashboardView/>
             </TabItem>
-            -->
 
             <!-- 🚀 INNOVATIVE USP FEATURES -->
             <TabItem Header="🧬 Performance DNA">

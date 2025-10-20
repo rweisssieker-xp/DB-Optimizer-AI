@@ -5,6 +5,7 @@ namespace DBOptimizer.Core.Services;
 public interface IDatabaseStatsService
 {
     Task<DatabaseMetric> GetDatabaseMetricsAsync();
+    Task<DatabaseMetric> GetPerformanceStatsAsync(); // Alias for GetDatabaseMetricsAsync
     Task<List<TableMetric>> GetTopTablesBySize(int topCount = 20);
     Task<List<IndexFragmentation>> GetFragmentedIndexesAsync(double thresholdPercent = 30);
     Task<List<MissingIndex>> GetMissingIndexesAsync();

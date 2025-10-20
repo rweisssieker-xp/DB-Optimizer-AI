@@ -127,12 +127,12 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
         }
     }
 
-    public async Task<List<HealthScoreHistory>> GetHealthScoreHistoryAsync(int months = 6)
+    public async Task<List<PerformanceHealthScoreHistory>> GetHealthScoreHistoryAsync(int days = 30)
     {
         try
         {
-            var history = new List<HealthScoreHistory>();
-            var startDate = DateTime.UtcNow.AddMonths(-months);
+            var history = new List<PerformanceHealthScoreHistory>();
+            var startDate = DateTime.UtcNow.AddDays(-days);
 
             // Get historical data from service
             var historicalData = await _historicalDataService.GetPerformanceSnapshotsAsync(startDate, DateTime.UtcNow);
@@ -145,7 +145,7 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
                 var snapshot = group.Last(); // Use last snapshot of the month
                 var date = new DateTime(group.Key.Year, group.Key.Month, 1);
 
-                history.Add(new HealthScoreHistory
+                history.Add(new PerformanceHealthScoreHistory
                 {
                     Date = date,
                     Score = CalculateHistoricalScore(snapshot),
@@ -160,6 +160,7 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
             }
 
             // Fill in missing months with estimates if needed
+            int months = days / 30;
             if (history.Count < months)
             {
                 history = FillMissingMonths(history, months);
@@ -170,6 +171,7 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting health score history");
+            int months = days / 30;
             return GeneratePlaceholderHistory(months);
         }
     }
@@ -291,8 +293,9 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
         try
         {
             var healthScore = await _systemHealthService.GetSystemHealthScoreAsync();
-            double uptime = healthScore.UptimePercentage;
-            double errorRate = healthScore.ErrorRate;
+            double uptime = healthScore.UptimePercentage ?? 99.0;
+            double errorRate = healthScore.ErrorRate ?? 0.1;
+            int failedBatchJobs = healthScore.FailedBatchJobs ?? 0;
 
             // Score based on uptime and error rate
             int score = (int)(uptime * 0.7 + Math.Max(0, 100 - errorRate * 100) * 0.3);
@@ -310,7 +313,7 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
                 {
                     new() { Name = "Uptime", Value = uptime, Unit = "%", Status = uptime >= 99.9 ? "Good" : "Warning", ImpactOnComponent = 50 },
                     new() { Name = "Error Rate", Value = errorRate, Unit = "%", Status = errorRate < 0.1 ? "Good" : "Warning", ImpactOnComponent = 30 },
-                    new() { Name = "Failed Batch Jobs", Value = healthScore.FailedBatchJobs, Unit = "count", Status = healthScore.FailedBatchJobs < 5 ? "Good" : "Warning", ImpactOnComponent = 20 }
+                    new() { Name = "Failed Batch Jobs", Value = failedBatchJobs, Unit = "count", Status = failedBatchJobs < 5 ? "Good" : "Warning", ImpactOnComponent = 20 }
                 }
             };
         }
@@ -436,7 +439,7 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
         };
     }
 
-    private HealthTrend CalculateTrend(List<HealthScoreHistory> history)
+    private HealthTrend CalculateTrend(List<PerformanceHealthScoreHistory> history)
     {
         if (history.Count < 2)
         {
@@ -526,10 +529,10 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
                      88 * 0.10); // Cost efficiency placeholder
     }
 
-    private List<HealthScoreHistory> FillMissingMonths(List<HealthScoreHistory> history, int targetMonths)
+    private List<PerformanceHealthScoreHistory> FillMissingMonths(List<PerformanceHealthScoreHistory> history, int targetMonths)
     {
         // Simple forward/backward fill logic
-        var filled = new List<HealthScoreHistory>(history);
+        var filled = new List<PerformanceHealthScoreHistory>(history);
         var startDate = DateTime.UtcNow.AddMonths(-targetMonths);
 
         for (int i = 0; i < targetMonths; i++)
@@ -537,7 +540,7 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
             var month = startDate.AddMonths(i);
             if (!filled.Any(h => h.Date.Year == month.Year && h.Date.Month == month.Month))
             {
-                filled.Add(new HealthScoreHistory
+                filled.Add(new PerformanceHealthScoreHistory
                 {
                     Date = month,
                     Score = 80, // Default
@@ -555,15 +558,15 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
         return filled.OrderBy(h => h.Date).ToList();
     }
 
-    private List<HealthScoreHistory> GeneratePlaceholderHistory(int months)
+    private List<PerformanceHealthScoreHistory> GeneratePlaceholderHistory(int months)
     {
-        var history = new List<HealthScoreHistory>();
+        var history = new List<PerformanceHealthScoreHistory>();
         var startDate = DateTime.UtcNow.AddMonths(-months);
 
         for (int i = 0; i < months; i++)
         {
             var date = startDate.AddMonths(i);
-            history.Add(new HealthScoreHistory
+            history.Add(new PerformanceHealthScoreHistory
             {
                 Date = date,
                 Score = 80 + (i % 5),
@@ -580,7 +583,7 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
         return history;
     }
 
-    private double CalculateTrendSlope(List<HealthScoreHistory> history)
+    private double CalculateTrendSlope(List<PerformanceHealthScoreHistory> history)
     {
         if (history.Count < 2) return 0;
 
@@ -596,15 +599,15 @@ public class PerformanceHealthScoreService : IPerformanceHealthScoreService
         return denominator == 0 ? 0 : numerator / denominator;
     }
 
-    private List<ForecastDataPoint> GenerateForecastCurve(int currentScore, int predictedScore, int daysAhead)
+    private List<HealthScoreForecastDataPoint> GenerateForecastCurve(int currentScore, int predictedScore, int daysAhead)
     {
-        var curve = new List<ForecastDataPoint>();
+        var curve = new List<HealthScoreForecastDataPoint>();
         var increment = (predictedScore - currentScore) / (double)daysAhead;
 
         for (int i = 0; i <= daysAhead; i += 7) // Weekly points
         {
             var score = currentScore + (int)(increment * i);
-            curve.Add(new ForecastDataPoint
+            curve.Add(new HealthScoreForecastDataPoint
             {
                 Date = DateTime.UtcNow.AddDays(i),
                 PredictedScore = score,
