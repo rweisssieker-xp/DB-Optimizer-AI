@@ -1,0 +1,586 @@
+<UserControl x:Class="DBOptimizer.WpfApp.Views.ExecutiveDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="900" d:DesignWidth="1400">
+    
+    <UserControl.Resources>
+        <!-- Card Style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" Opacity="0.1" ShadowDepth="2" BlurRadius="8"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Metric Card Style -->
+        <Style x:Key="MetricCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" Opacity="0.15" ShadowDepth="3" BlurRadius="10"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Achievement Item Style -->
+        <Style x:Key="AchievementStyle" TargetType="Border">
+            <Setter Property="Background" Value="#F5F5F5"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="12"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#F5F7FA">
+        <!-- Loading Overlay -->
+        <Border Background="#80FFFFFF" 
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Panel.ZIndex="1000">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="⏳" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBlock Text="Loading Executive Dashboard..." 
+                          FontSize="16" 
+                          FontWeight="SemiBold"
+                          HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Error Message -->
+        <Border Background="#FFEBEE" 
+                BorderBrush="#F44336" 
+                BorderThickness="2" 
+                CornerRadius="5" 
+                Padding="15" 
+                Margin="20"
+                Visibility="{Binding ErrorMessage, Converter={StaticResource StringToVisibilityConverter}}"
+                VerticalAlignment="Top"
+                Panel.ZIndex="999">
+            <StackPanel>
+                <TextBlock Text="⚠️ Error" FontSize="16" FontWeight="Bold" Foreground="#C62828" Margin="0,0,0,5"/>
+                <TextBlock Text="{Binding ErrorMessage}" 
+                          TextWrapping="Wrap"
+                          Foreground="#D32F2F"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" 
+                     Visibility="{Binding HasData, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel Margin="30,20,30,30">
+                
+                <!-- Header Section -->
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="📊 Executive Dashboard" 
+                                  FontSize="32" 
+                                  FontWeight="Bold" 
+                                  Foreground="#1A237E"/>
+                        <TextBlock Text="Performance, ROI &amp; Business Impact" 
+                                  FontSize="16" 
+                                  Foreground="#757575"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="🔄 Refresh" 
+                               Command="{Binding RefreshCommand}"
+                               Padding="15,8"
+                               Margin="0,0,10,0"
+                               Background="#2196F3"
+                               Foreground="White"
+                               BorderThickness="0"
+                               FontWeight="SemiBold"
+                               Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                       CornerRadius="5"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#1976D2"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        
+                        <Button Content="📥 Export PDF" 
+                               Command="{Binding ExportReportCommand}"
+                               CommandParameter="PDF"
+                               Padding="15,8"
+                               Background="#4CAF50"
+                               Foreground="White"
+                               BorderThickness="0"
+                               FontWeight="SemiBold"
+                               Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                       CornerRadius="5"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#388E3C"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Health Score Hero Section -->
+                <Border Style="{StaticResource CardStyle}" 
+                       Background="Linear Gradient(135deg, #667EEA 0%, #764BA2 100%)"
+                       BorderThickness="0"
+                       Margin="0,0,0,30">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <!-- Score Circle -->
+                        <Border Grid.Column="0" 
+                               Width="180" 
+                               Height="180" 
+                               Background="White"
+                               CornerRadius="90"
+                               Margin="0,0,30,0"
+                               Cursor="Hand">
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HealthScore}" 
+                                          FontSize="64" 
+                                          FontWeight="Bold" 
+                                          Foreground="#667EEA"
+                                          HorizontalAlignment="Center"/>
+                                <TextBlock Text="{Binding HealthGrade}" 
+                                          FontSize="24" 
+                                          FontWeight="SemiBold"
+                                          Foreground="#764BA2"
+                                          HorizontalAlignment="Center"
+                                          Margin="0,-5,0,0"/>
+                                <TextBlock Text="Health Score" 
+                                          FontSize="12" 
+                                          Foreground="#9E9E9E"
+                                          HorizontalAlignment="Center"
+                                          Margin="0,5,0,0"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Trend and Summary -->
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding HealthStatus}" 
+                                      FontSize="28" 
+                                      FontWeight="Bold" 
+                                      Foreground="White"/>
+                            
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <TextBlock Text="{Binding TrendIcon}" 
+                                          FontSize="24"
+                                          Margin="0,0,10,0"/>
+                                <TextBlock FontSize="18" Foreground="White">
+                                    <Run Text="Trend: "/>
+                                    <Run Text="{Binding HealthScoreTrend, StringFormat='+#;-#;0'}" FontWeight="Bold"/>
+                                    <Run Text=" points vs. last month"/>
+                                </TextBlock>
+                            </StackPanel>
+                            
+                            <TextBlock Text="{Binding BoardReadySummary}" 
+                                      FontSize="14" 
+                                      Foreground="#E1E1E1"
+                                      TextWrapping="Wrap"
+                                      Margin="0,15,0,0"
+                                      LineHeight="22"/>
+                            
+                            <Button Content="📋 View Detailed Breakdown" 
+                                   Command="{Binding ViewHealthScoreDetailsCommand}"
+                                   Padding="12,8"
+                                   Margin="0,20,0,0"
+                                   Background="White"
+                                   Foreground="#667EEA"
+                                   BorderThickness="0"
+                                   FontWeight="SemiBold"
+                                   Cursor="Hand"
+                                   HorizontalAlignment="Left">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border Background="{TemplateBinding Background}"
+                                                           CornerRadius="5"
+                                                           Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#F5F5F5"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Key Metrics Row -->
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Query Performance Card -->
+                    <Border Grid.Column="0" Style="{StaticResource MetricCardStyle}" Margin="0,0,15,0">
+                        <StackPanel>
+                            <TextBlock Text="⚡" FontSize="32" Margin="0,0,0,10"/>
+                            <TextBlock Text="Query Performance" 
+                                      FontSize="14" 
+                                      Foreground="#757575"
+                                      Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding QueryPerformanceGrade}" 
+                                      FontSize="36" 
+                                      FontWeight="Bold" 
+                                      Foreground="#2196F3"/>
+                            <TextBlock FontSize="12" Foreground="#4CAF50" Margin="0,5,0,0">
+                                <Run Text="↑ "/>
+                                <Run Text="{Binding QueryPerformanceImprovement, StringFormat='{}{0:F1}%'}"/>
+                                <Run Text=" improved"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Cost Efficiency Card -->
+                    <Border Grid.Column="1" Style="{StaticResource MetricCardStyle}" Margin="0,0,15,0">
+                        <StackPanel>
+                            <TextBlock Text="💰" FontSize="32" Margin="0,0,0,10"/>
+                            <TextBlock Text="Monthly Savings" 
+                                      FontSize="14" 
+                                      Foreground="#757575"
+                                      Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding MonthlySavings, StringFormat='€{0:N0}'}" 
+                                      FontSize="32" 
+                                      FontWeight="Bold" 
+                                      Foreground="#FF9800"/>
+                            <TextBlock Text="{Binding CostEfficiencyGrade}" 
+                                      FontSize="14" 
+                                      Foreground="#757575"
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- System Reliability Card -->
+                    <Border Grid.Column="2" Style="{StaticResource MetricCardStyle}" Margin="0,0,15,0">
+                        <StackPanel>
+                            <TextBlock Text="🛡️" FontSize="32" Margin="0,0,0,10"/>
+                            <TextBlock Text="System Reliability" 
+                                      FontSize="14" 
+                                      Foreground="#757575"
+                                      Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding UptimePercentage, StringFormat='{}{0:F2}%'}" 
+                                      FontSize="32" 
+                                      FontWeight="Bold" 
+                                      Foreground="#4CAF50"/>
+                            <TextBlock Text="{Binding ReliabilityGrade}" 
+                                      FontSize="14" 
+                                      Foreground="#757575"
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- ROI Card -->
+                    <Border Grid.Column="3" Style="{StaticResource MetricCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="📈" FontSize="32" Margin="0,0,0,10"/>
+                            <TextBlock Text="Return on Investment" 
+                                      FontSize="14" 
+                                      Foreground="#757575"
+                                      Margin="0,0,0,5"/>
+                            <TextBlock Text="{Binding RoiPercentage, StringFormat='{}{0:F0}%'}" 
+                                      FontSize="32" 
+                                      FontWeight="Bold" 
+                                      Foreground="#9C27B0"/>
+                            <TextBlock Text="6-month average" 
+                                      FontSize="12" 
+                                      Foreground="#757575"
+                                      Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Left Column: Achievements & Investment -->
+                    <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                        
+                        <!-- Top Achievements Section -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="🏆 Top Achievements This Month" 
+                                          FontSize="20" 
+                                          FontWeight="Bold" 
+                                          Margin="0,0,0,20"/>
+                                
+                                <ItemsControl ItemsSource="{Binding Achievements}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Style="{StaticResource AchievementStyle}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <TextBlock Grid.Column="0" 
+                                                              Text="{Binding Icon}" 
+                                                              FontSize="24" 
+                                                              VerticalAlignment="Center"
+                                                              Margin="0,0,15,0"/>
+                                                    
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}" 
+                                                                  FontWeight="SemiBold"
+                                                                  FontSize="14"/>
+                                                        <TextBlock Text="{Binding Description}" 
+                                                                  FontSize="12" 
+                                                                  Foreground="#757575"
+                                                                  Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    
+                                                    <TextBlock Grid.Column="2" 
+                                                              Text="{Binding ImpactPercentage, StringFormat='+{0:F0}%'}" 
+                                                              FontSize="16" 
+                                                              FontWeight="Bold"
+                                                              Foreground="#4CAF50"
+                                                              VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Investment Summary Section -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="💼 Investment Summary" 
+                                          FontSize="20" 
+                                          FontWeight="Bold" 
+                                          Margin="0,0,0,20"/>
+                                
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    
+                                    <!-- Tool Cost -->
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Tool Cost" 
+                                                  FontSize="12" 
+                                                  Foreground="#757575"/>
+                                        <TextBlock Text="{Binding ToolCost, StringFormat='€{0:N0}/mo'}" 
+                                                  FontSize="24" 
+                                                  FontWeight="Bold" 
+                                                  Foreground="#F44336"
+                                                  Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Savings Generated -->
+                                    <StackPanel Grid.Column="1">
+                                        <TextBlock Text="Savings Generated" 
+                                                  FontSize="12" 
+                                                  Foreground="#757575"/>
+                                        <TextBlock Text="{Binding SavingsGenerated, StringFormat='€{0:N0}/mo'}" 
+                                                  FontSize="24" 
+                                                  FontWeight="Bold" 
+                                                  Foreground="#4CAF50"
+                                                  Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                    
+                                    <!-- Net ROI -->
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Net ROI" 
+                                                  FontSize="12" 
+                                                  Foreground="#757575"/>
+                                        <TextBlock Text="{Binding NetRoi, StringFormat='€{0:N0}/mo'}" 
+                                                  FontSize="24" 
+                                                  FontWeight="Bold" 
+                                                  Foreground="#2196F3"
+                                                  Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                                
+                                <!-- ROI Bar -->
+                                <Border Background="#E8F5E9" 
+                                       CornerRadius="5" 
+                                       Padding="15" 
+                                       Margin="0,20,0,0">
+                                    <StackPanel>
+                                        <TextBlock Text="💡 ROI Calculation" 
+                                                  FontSize="14" 
+                                                  FontWeight="SemiBold"
+                                                  Foreground="#2E7D32"
+                                                  Margin="0,0,0,10"/>
+                                        <TextBlock FontSize="12" Foreground="#424242" TextWrapping="Wrap">
+                                            <Run Text="For every €1 spent on the tool, you save "/>
+                                            <Run Text="{Binding RoiPercentage, StringFormat='€{0:F0}'}" FontWeight="Bold"/>
+                                            <Run Text=" through performance optimizations, reduced downtime, and improved efficiency."/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    
+                    <!-- Right Column: Quick Stats & Historical Trend -->
+                    <StackPanel Grid.Column="1">
+                        
+                        <!-- Quick Stats Section -->
+                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                            <StackPanel>
+                                <TextBlock Text="📊 Quick Stats" 
+                                          FontSize="18" 
+                                          FontWeight="Bold" 
+                                          Margin="0,0,0,20"/>
+                                
+                                <!-- Optimizations This Month -->
+                                <StackPanel Margin="0,0,0,15">
+                                    <TextBlock Text="Optimizations Applied" 
+                                              FontSize="12" 
+                                              Foreground="#757575"/>
+                                    <TextBlock Text="{Binding OptimizationsThisMonth}" 
+                                              FontSize="32" 
+                                              FontWeight="Bold" 
+                                              Foreground="#2196F3"
+                                              Margin="0,5,0,0"/>
+                                </StackPanel>
+                                
+                                <!-- Incidents Prevented -->
+                                <StackPanel Margin="0,0,0,15">
+                                    <TextBlock Text="Incidents Prevented" 
+                                              FontSize="12" 
+                                              Foreground="#757575"/>
+                                    <TextBlock Text="{Binding IncidentsPrevented}" 
+                                              FontSize="32" 
+                                              FontWeight="Bold" 
+                                              Foreground="#4CAF50"
+                                              Margin="0,5,0,0"/>
+                                </StackPanel>
+                                
+                                <!-- User Satisfaction -->
+                                <StackPanel Margin="0,0,0,15">
+                                    <TextBlock Text="User Satisfaction" 
+                                              FontSize="12" 
+                                              Foreground="#757575"/>
+                                    <TextBlock Text="{Binding UserSatisfaction, StringFormat='{}{0:F1}/5.0'}" 
+                                              FontSize="32" 
+                                              FontWeight="Bold" 
+                                              Foreground="#FF9800"
+                                              Margin="0,5,0,0"/>
+                                </StackPanel>
+                                
+                                <!-- Active Issues -->
+                                <StackPanel>
+                                    <TextBlock Text="Active Issues" 
+                                              FontSize="12" 
+                                              Foreground="#757575"/>
+                                    <TextBlock Text="{Binding ActiveIssues}" 
+                                              FontSize="32" 
+                                              FontWeight="Bold" 
+                                              Foreground="#F44336"
+                                              Margin="0,5,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Historical Trend Section -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="📈 6-Month Trend" 
+                                          FontSize="18" 
+                                          FontWeight="Bold" 
+                                          Margin="0,0,0,15"/>
+                                
+                                <ItemsControl ItemsSource="{Binding HealthScoreTrend}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Margin="0,0,0,12">
+                                                <Grid Margin="0,0,0,5">
+                                                    <TextBlock Text="{Binding Period}" 
+                                                              FontSize="12" 
+                                                              Foreground="#757575"
+                                                              HorizontalAlignment="Left"/>
+                                                    <TextBlock HorizontalAlignment="Right">
+                                                        <Run Text="{Binding Score}" FontWeight="Bold" FontSize="12"/>
+                                                        <Run Text=" (" FontSize="10" Foreground="#757575"/>
+                                                        <Run Text="{Binding Grade}" FontWeight="SemiBold" FontSize="10" Foreground="#2196F3"/>
+                                                        <Run Text=")" FontSize="10" Foreground="#757575"/>
+                                                    </TextBlock>
+                                                </Grid>
+                                                <TextBlock Text="{Binding VisualBar}" 
+                                                          FontFamily="Segoe UI Symbol"
+                                                          FontSize="14"
+                                                          Foreground="#2196F3"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

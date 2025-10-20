@@ -98,18 +98,6 @@ public class PerformanceForecast
 }
 
 /// <summary>
-/// Forecast data point for charting
-/// </summary>
-public class ForecastDataPoint
-{
-    public DateTime Date { get; set; }
-    public double PredictedValue { get; set; }
-    public double LowerBound { get; set; }
-    public double UpperBound { get; set; }
-    public bool IsAnomaly { get; set; }
-}
-
-/// <summary>
 /// Anomaly detection result
 /// </summary>
 public class AnomalyDetectionResult

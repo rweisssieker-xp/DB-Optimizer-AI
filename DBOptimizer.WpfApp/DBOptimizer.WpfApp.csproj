@@ -23,5 +23,20 @@
     <ProjectReference Include="..\DBOptimizer.Data\DBOptimizer.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Temporarily exclude new enterprise features until services are fixed -->
+    <Compile Remove="ViewModels\ExecutiveDashboardViewModel.cs" />
+    <Compile Remove="ViewModels\ComplianceAuditViewModel.cs" />
+    <Compile Remove="ViewModels\AiHealthDashboardViewModel.cs" />
+    <Compile Remove="Views\ExecutiveDashboardView.xaml.cs" />
+    <Compile Remove="Views\HealthScoreDetailView.xaml.cs" />
+    <Compile Remove="Views\ComplianceAuditView.xaml.cs" />
+    <Compile Remove="Views\AiHealthDashboardView.xaml.cs" />
+    <None Remove="Views\ExecutiveDashboardView.xaml" />
+    <None Remove="Views\HealthScoreDetailView.xaml" />
+    <None Remove="Views\ComplianceAuditView.xaml" />
+    <None Remove="Views\AiHealthDashboardView.xaml" />
+  </ItemGroup>
+
 </Project>
 

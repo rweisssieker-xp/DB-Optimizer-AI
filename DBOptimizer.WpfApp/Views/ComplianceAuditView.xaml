@@ -1,0 +1,512 @@
+<UserControl x:Class="DBOptimizer.WpfApp.Views.ComplianceAuditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="900" d:DesignWidth="1400">
+    
+    <UserControl.Resources>
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20"/>
+            <Setter Property="Margin" Value="0,0,0,20"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#000000" Opacity="0.1" ShadowDepth="2" BlurRadius="8"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="#F5F7FA">
+        <!-- Loading Overlay -->
+        <Border Background="#80FFFFFF" 
+                Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                Panel.ZIndex="1000">
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                <TextBlock Text="⏳" FontSize="48" HorizontalAlignment="Center" Margin="0,0,0,10"/>
+                <TextBlock Text="Loading Compliance Data..." 
+                          FontSize="16" 
+                          FontWeight="SemiBold"
+                          HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                     Visibility="{Binding HasData, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <StackPanel Margin="30,20,30,30">
+                
+                <!-- Header -->
+                <Grid Margin="0,0,0,30">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="📝 Compliance &amp; Audit Trail" 
+                                  FontSize="32" 
+                                  FontWeight="Bold" 
+                                  Foreground="#1A237E"/>
+                        <TextBlock Text="SOX, GDPR, HIPAA Compliance Tracking" 
+                                  FontSize="16" 
+                                  Foreground="#757575"
+                                  Margin="0,5,0,0"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Content="🔄 Refresh" 
+                               Command="{Binding RefreshCommand}"
+                               Padding="15,8"
+                               Margin="0,0,10,0"
+                               Background="#2196F3"
+                               Foreground="White"
+                               BorderThickness="0"
+                               FontWeight="SemiBold"
+                               Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                       CornerRadius="5"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#1976D2"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        
+                        <Button Content="📥 Export CSV" 
+                               Command="{Binding ExportAuditTrailCommand}"
+                               CommandParameter="CSV"
+                               Padding="15,8"
+                               Background="#4CAF50"
+                               Foreground="White"
+                               BorderThickness="0"
+                               FontWeight="SemiBold"
+                               Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border Background="{TemplateBinding Background}"
+                                                       CornerRadius="5"
+                                                       Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                </Border>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#388E3C"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Compliance Standard Selector -->
+                <Border Style="{StaticResource CardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="📋 Compliance Standard" 
+                                  FontSize="16" 
+                                  FontWeight="SemiBold"
+                                  Margin="0,0,0,10"/>
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <Button Content="SOX" 
+                                   Command="{Binding ChangeStandardCommand}"
+                                   CommandParameter="SOX"
+                                   Padding="20,8"
+                                   Margin="0,0,10,0"
+                                   Background="#E3F2FD"
+                                   Foreground="#1976D2"
+                                   BorderThickness="1"
+                                   BorderBrush="#2196F3"
+                                   FontWeight="SemiBold"
+                                   Cursor="Hand"/>
+                            <Button Content="GDPR" 
+                                   Command="{Binding ChangeStandardCommand}"
+                                   CommandParameter="GDPR"
+                                   Padding="20,8"
+                                   Margin="0,0,10,0"
+                                   Background="White"
+                                   Foreground="#424242"
+                                   BorderThickness="1"
+                                   BorderBrush="#E0E0E0"
+                                   Cursor="Hand"/>
+                            <Button Content="HIPAA" 
+                                   Command="{Binding ChangeStandardCommand}"
+                                   CommandParameter="HIPAA"
+                                   Padding="20,8"
+                                   Margin="0,0,10,0"
+                                   Background="White"
+                                   Foreground="#424242"
+                                   BorderThickness="1"
+                                   BorderBrush="#E0E0E0"
+                                   Cursor="Hand"/>
+                            <Button Content="ISO 27001" 
+                                   Command="{Binding ChangeStandardCommand}"
+                                   CommandParameter="ISO27001"
+                                   Padding="20,8"
+                                   Margin="0,0,10,0"
+                                   Background="White"
+                                   Foreground="#424242"
+                                   BorderThickness="1"
+                                   BorderBrush="#E0E0E0"
+                                   Cursor="Hand"/>
+                            <Button Content="PCI-DSS" 
+                                   Command="{Binding ChangeStandardCommand}"
+                                   CommandParameter="PCIDSS"
+                                   Padding="20,8"
+                                   Background="White"
+                                   Foreground="#424242"
+                                   BorderThickness="1"
+                                   BorderBrush="#E0E0E0"
+                                   Cursor="Hand"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- Statistics Row -->
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Total Changes -->
+                    <Border Grid.Column="0" Background="White" BorderThickness="0" CornerRadius="10" Padding="20" Margin="0,0,10,0">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" Opacity="0.15" ShadowDepth="3" BlurRadius="10"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="📊" FontSize="28" Margin="0,0,0,10"/>
+                            <TextBlock Text="Total Changes" FontSize="12" Foreground="#757575"/>
+                            <TextBlock Text="{Binding TotalChanges}" FontSize="32" FontWeight="Bold" Foreground="#2196F3" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Auto Applied -->
+                    <Border Grid.Column="1" Background="White" BorderThickness="0" CornerRadius="10" Padding="20" Margin="0,0,10,0">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" Opacity="0.15" ShadowDepth="3" BlurRadius="10"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="🤖" FontSize="28" Margin="0,0,0,10"/>
+                            <TextBlock Text="Auto-Applied" FontSize="12" Foreground="#757575"/>
+                            <TextBlock Text="{Binding AutoApplied}" FontSize="32" FontWeight="Bold" Foreground="#4CAF50" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Manual Review -->
+                    <Border Grid.Column="2" Background="White" BorderThickness="0" CornerRadius="10" Padding="20" Margin="0,0,10,0">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" Opacity="0.15" ShadowDepth="3" BlurRadius="10"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="👤" FontSize="28" Margin="0,0,0,10"/>
+                            <TextBlock Text="Manual Review" FontSize="12" Foreground="#757575"/>
+                            <TextBlock Text="{Binding ManualReview}" FontSize="32" FontWeight="Bold" Foreground="#FF9800" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Rollbacks -->
+                    <Border Grid.Column="3" Background="White" BorderThickness="0" CornerRadius="10" Padding="20" Margin="0,0,10,0">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" Opacity="0.15" ShadowDepth="3" BlurRadius="10"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="↩️" FontSize="28" Margin="0,0,0,10"/>
+                            <TextBlock Text="Rollbacks" FontSize="12" Foreground="#757575"/>
+                            <TextBlock Text="{Binding Rollbacks}" FontSize="32" FontWeight="Bold" Foreground="#F44336" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                    
+                    <!-- Success Rate -->
+                    <Border Grid.Column="4" Background="White" BorderThickness="0" CornerRadius="10" Padding="20">
+                        <Border.Effect>
+                            <DropShadowEffect Color="#000000" Opacity="0.15" ShadowDepth="3" BlurRadius="10"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <TextBlock Text="✅" FontSize="28" Margin="0,0,0,10"/>
+                            <TextBlock Text="Success Rate" FontSize="12" Foreground="#757575"/>
+                            <TextBlock Text="{Binding SuccessRate, StringFormat='{}{0:F1}%'}" FontSize="32" FontWeight="Bold" Foreground="#9C27B0" Margin="0,5,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Left Column -->
+                    <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                        
+                        <!-- Compliance Status -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="🔒 Compliance Status" FontSize="20" FontWeight="Bold" Margin="0,0,0,15"/>
+                                
+                                <Border Background="{Binding ComplianceStatusColor}" 
+                                       Opacity="0.1" 
+                                       CornerRadius="5" 
+                                       Padding="20"
+                                       Margin="0,0,0,20">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding ComplianceStatus}" 
+                                                  FontSize="32" 
+                                                  FontWeight="Bold" 
+                                                  Foreground="{Binding ComplianceStatusColor}"
+                                                  HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{Binding SelectedStandard}" 
+                                                  FontSize="14" 
+                                                  Foreground="#757575"
+                                                  HorizontalAlignment="Center"
+                                                  Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <TextBlock Text="Compliance Checks:" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+                                
+                                <ItemsControl ItemsSource="{Binding ComplianceChecks}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#F5F5F5" 
+                                                   BorderBrush="#E0E0E0" 
+                                                   BorderThickness="1" 
+                                                   CornerRadius="5" 
+                                                   Padding="12"
+                                                   Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    
+                                                    <TextBlock Grid.Column="0" 
+                                                              Text="{Binding StatusIcon}" 
+                                                              FontSize="20"
+                                                              VerticalAlignment="Top"
+                                                              Margin="0,0,10,0"/>
+                                                    
+                                                    <StackPanel Grid.Column="1">
+                                                        <TextBlock Text="{Binding Name}" 
+                                                                  FontWeight="SemiBold"
+                                                                  FontSize="13"/>
+                                                        <TextBlock Text="{Binding Description}" 
+                                                                  FontSize="11" 
+                                                                  Foreground="#757575"
+                                                                  Margin="0,2,0,5"/>
+                                                        <TextBlock Text="{Binding Result}" 
+                                                                  FontSize="11" 
+                                                                  Foreground="#424242"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- High-Impact Changes -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="⚠️ High-Impact Changes" FontSize="20" FontWeight="Bold" Margin="0,0,0,15"/>
+                                
+                                <ItemsControl ItemsSource="{Binding HighImpactChanges}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#FFF3E0" 
+                                                   BorderBrush="#FF9800" 
+                                                   BorderThickness="1" 
+                                                   CornerRadius="5" 
+                                                   Padding="12"
+                                                   Margin="0,0,0,8">
+                                                <StackPanel>
+                                                    <Grid>
+                                                        <TextBlock Text="{Binding Timestamp}" FontSize="11" Foreground="#757575"/>
+                                                        <TextBlock Text="{Binding ImpactPercentage, StringFormat='{}{0:F1}%'}" 
+                                                                  FontSize="14" 
+                                                                  FontWeight="Bold"
+                                                                  Foreground="#F57C00"
+                                                                  HorizontalAlignment="Right"/>
+                                                    </Grid>
+                                                    <TextBlock Text="{Binding ActionType}" 
+                                                              FontWeight="SemiBold"
+                                                              FontSize="13"
+                                                              Margin="0,3,0,0"/>
+                                                    <TextBlock FontSize="11" Foreground="#757575" Margin="0,2,0,0">
+                                                        <Run Text="Target: "/>
+                                                        <Run Text="{Binding TargetObject}" FontWeight="SemiBold"/>
+                                                    </TextBlock>
+                                                    <TextBlock FontSize="11" Foreground="#757575" Margin="0,2,0,0">
+                                                        <Run Text="User: "/>
+                                                        <Run Text="{Binding UserEmail}"/>
+                                                        <Run Text=" | Approved by: "/>
+                                                        <Run Text="{Binding ApprovedBy}" FontWeight="SemiBold"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                    
+                    <!-- Right Column: SLA & Audit Trail -->
+                    <StackPanel Grid.Column="1">
+                        
+                        <!-- SLA Compliance -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="📊 SLA Compliance" FontSize="18" FontWeight="Bold" Margin="0,0,0,15"/>
+                                
+                                <!-- Overall -->
+                                <Border Background="#E3F2FD" CornerRadius="5" Padding="12" Margin="0,0,0,15">
+                                    <StackPanel>
+                                        <TextBlock Text="Overall Compliance" FontSize="11" Foreground="#1976D2"/>
+                                        <TextBlock Text="{Binding OverallSlaCompliance, StringFormat='{}{0:F1}%'}" 
+                                                  FontSize="28" 
+                                                  FontWeight="Bold" 
+                                                  Foreground="#2196F3"
+                                                  Margin="0,5,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                
+                                <!-- Individual SLAs -->
+                                <StackPanel Margin="0,0,0,10">
+                                    <Grid Margin="0,0,0,5">
+                                        <TextBlock Text="Response Time" FontSize="11" Foreground="#757575"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding ResponseTimeSla, StringFormat='{}{0:F1}%'}" 
+                                                      FontSize="12" 
+                                                      FontWeight="Bold"
+                                                      Foreground="{Binding ResponseTimeMet, Converter={StaticResource BooleanToColorConverter}}"/>
+                                            <TextBlock Text="{Binding ResponseTimeMet, Converter={StaticResource BooleanToIconConverter}}" 
+                                                      FontSize="12"
+                                                      Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    
+                                    <Grid Margin="0,0,0,5">
+                                        <TextBlock Text="Uptime" FontSize="11" Foreground="#757575"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding UptimeSla, StringFormat='{}{0:F1}%'}" 
+                                                      FontSize="12" 
+                                                      FontWeight="Bold"
+                                                      Foreground="#4CAF50"/>
+                                            <TextBlock Text="✅" FontSize="12" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    
+                                    <Grid Margin="0,0,0,5">
+                                        <TextBlock Text="Query Performance" FontSize="11" Foreground="#757575"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding QueryPerformanceSla, StringFormat='{}{0:F1}%'}" 
+                                                      FontSize="12" 
+                                                      FontWeight="Bold"
+                                                      Foreground="#4CAF50"/>
+                                            <TextBlock Text="✅" FontSize="12" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    
+                                    <Grid>
+                                        <TextBlock Text="Incident Response" FontSize="11" Foreground="#757575"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding IncidentResponseSla, StringFormat='{}{0:F1}%'}" 
+                                                      FontSize="12" 
+                                                      FontWeight="Bold"
+                                                      Foreground="#4CAF50"/>
+                                            <TextBlock Text="✅" FontSize="12" Margin="5,0,0,0"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                        
+                        <!-- Recent Audit Entries -->
+                        <Border Style="{StaticResource CardStyle}">
+                            <StackPanel>
+                                <TextBlock Text="📋 Recent Audit Entries (Top 20)" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                                
+                                <ScrollViewer MaxHeight="400" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding AuditTrail}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border Background="#F9F9F9" 
+                                                       BorderBrush="#E0E0E0" 
+                                                       BorderThickness="1" 
+                                                       CornerRadius="3" 
+                                                       Padding="8"
+                                                       Margin="0,0,0,5">
+                                                    <StackPanel>
+                                                        <Grid>
+                                                            <TextBlock Text="{Binding Timestamp}" FontSize="9" Foreground="#9E9E9E"/>
+                                                            <Border Background="{Binding StatusColor}" 
+                                                                   Opacity="0.2"
+                                                                   CornerRadius="3" 
+                                                                   Padding="4,2"
+                                                                   HorizontalAlignment="Right">
+                                                                <TextBlock Text="{Binding Status}" 
+                                                                          FontSize="9" 
+                                                                          Foreground="{Binding StatusColor}"
+                                                                          FontWeight="SemiBold"/>
+                                                            </Border>
+                                                        </Grid>
+                                                        <TextBlock Text="{Binding ActionType}" 
+                                                                  FontWeight="SemiBold"
+                                                                  FontSize="11"
+                                                                  Margin="0,2,0,0"/>
+                                                        <TextBlock Text="{Binding Description}" 
+                                                                  FontSize="10" 
+                                                                  Foreground="#757575"
+                                                                  Margin="0,1,0,0"/>
+                                                        <Grid Margin="0,2,0,0">
+                                                            <TextBlock Text="{Binding UserEmail}" FontSize="9" Foreground="#9E9E9E"/>
+                                                            <TextBlock Text="{Binding Impact}" 
+                                                                      FontSize="9" 
+                                                                      FontWeight="Bold"
+                                                                      Foreground="#FF9800"
+                                                                      HorizontalAlignment="Right"/>
+                                                        </Grid>
+                                                    </StackPanel>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
